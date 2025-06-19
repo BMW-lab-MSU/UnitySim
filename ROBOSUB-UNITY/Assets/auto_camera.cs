@@ -17,6 +17,11 @@ public class AutoCamera : MonoBehaviour
 	public Collider boundsCollider;
 	public Collider poolCollider;
 	public int movementInterval = 10;
+	public int targetedCaptures = 50;
+	public float minBuoyAutoDistance = 0.7f;
+	public float maxBuoyAutoDistance = 5.0f;    // If making a threshold for buoy removal, do 6.0f
+	public float minGateAutoDistance = 4.0f;
+	public float maxGateAutoDistance = 7.0f;    // If making a threshold for gate removal, do 8.0f
 
 	private GameObject[] targetObjects;
 	private PerceptionCamera PC;
@@ -32,7 +37,7 @@ public class AutoCamera : MonoBehaviour
 		targets.AddRange(GameObject.FindGameObjectsWithTag("Gate"));
 		targetObjects = targets.ToArray();
 
-		maxCaptures = targetObjects.Length * 50;
+		maxCaptures = targetObjects.Length * targetedCaptures;
 
 		PC = GetComponent<PerceptionCamera>();
 	}
@@ -74,7 +79,16 @@ public class AutoCamera : MonoBehaviour
 			Vector3 targetPos = target.transform.position;
 
 			Vector3 randomOffset = Random.onUnitSphere;
-			randomOffset *= Random.Range(1.0f,10.0f);
+			if (target.CompareTag("Buoy"))
+			{
+				float cameraDistance = Random.Range(minBuoyAutoDistance, maxBuoyAutoDistance);
+				randomOffset *= cameraDistance;
+			}
+			else
+			{
+				float cameraDistance = Random.Range(minGateAutoDistance, maxGateAutoDistance);
+				randomOffset *= cameraDistance;
+			}
 
 			Vector3 newCameraPos = targetPos + randomOffset;
 
