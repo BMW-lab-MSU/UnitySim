@@ -22,6 +22,7 @@ public class AutoCamera : MonoBehaviour
 	public float maxBuoyAutoDistance = 4.0f;
 	public float minGateAutoDistance = 4.0f;
 	public float maxGateAutoDistance = 7.0f;
+	public int randomSeed = 42;
 	private GameObject[] targetObjects;
 	private PerceptionCamera PC;
 	private int framesSinceMovement = 0;
@@ -39,6 +40,8 @@ public class AutoCamera : MonoBehaviour
 		maxCaptures = targetObjects.Length * targetedCaptures;
 
 		PC = GetComponent<PerceptionCamera>();
+
+		Random.InitState(randomSeed);
 	}
 
 
