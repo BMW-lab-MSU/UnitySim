@@ -17,12 +17,11 @@ public class AutoCamera : MonoBehaviour
 	public Collider boundsCollider;
 	public Collider poolCollider;
 	public int movementInterval = 10;
-	public int targetedCaptures = 50;
+	public int targetedCaptures = 90;
 	public float minBuoyAutoDistance = 0.7f;
-	public float maxBuoyAutoDistance = 5.0f;    // If making a threshold for buoy removal, do 6.0f
+	public float maxBuoyAutoDistance = 4.0f;
 	public float minGateAutoDistance = 4.0f;
-	public float maxGateAutoDistance = 7.0f;    // If making a threshold for gate removal, do 8.0f
-
+	public float maxGateAutoDistance = 7.0f;
 	private GameObject[] targetObjects;
 	private PerceptionCamera PC;
 	private int framesSinceMovement = 0;
@@ -100,6 +99,22 @@ public class AutoCamera : MonoBehaviour
 				transform.LookAt(targetPos);
 				framesSinceMovement = 0;
 				hasMoved = true;
+
+				// Hide too far objects
+				for (int i = 0; i < targetObjects.Length; i++)
+				{
+					GameObject obj = targetObjects[i];
+					if (obj.CompareTag("Buoy"))
+					{
+						float distanceToCamera = Vector3.Distance(transform.position, obj.transform.position);
+						obj.SetActive(distanceToCamera <= (maxBuoyAutoDistance + 0.50));
+					}
+					else if (obj.CompareTag("Gate"))
+					{
+						float distanceToCamera = Vector3.Distance(transform.position, obj.transform.position);
+						obj.SetActive(distanceToCamera <= (maxGateAutoDistance + 0.5));
+					}
+				}
 			}
 		}
 	}
