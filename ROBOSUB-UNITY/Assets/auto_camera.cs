@@ -12,7 +12,6 @@ using UnityEngine.Perception.GroundTruth.DataModel;
 /// </summary>
 public class AutoCamera : MonoBehaviour
 {
-	public float minDistanceAboveFloor = 0.25f;
 	public float checkFloorDistance = 4f;
 	public Collider boundsCollider;
 	public Collider poolCollider;
@@ -23,6 +22,7 @@ public class AutoCamera : MonoBehaviour
 	public float minGateAutoDistance = 4.0f;
 	public float maxGateAutoDistance = 7.0f;
 	public int randomSeed = 42;
+	private float minDistanceAboveFloor = 0.25f;
 	private GameObject[] targetObjects;
 	private PerceptionCamera PC;
 	private int framesSinceMovement = 0;
@@ -93,15 +93,21 @@ public class AutoCamera : MonoBehaviour
 			}
 
 			Vector3 newCameraPos = targetPos + randomOffset;
+			//Vector3 lookOffset = targetPos + Random.insideUnitSphere * 1f;
+
+			Vector3 toTarget = (targetPos - newCameraPos).normalized;
+			float maxAngle = 20f;
+			Quaternion randomRotation = Quaternion.AngleAxis(Random.Range(-maxAngle, maxAngle), Random.onUnitSphere);
+			Vector3 lookDirection = randomRotation * toTarget;
+			Vector3 lookOffset = newCameraPos + lookDirection * (targetPos - newCameraPos).magnitude;
+
 
 
 			if (boundsCollider.bounds.Contains(newCameraPos) &&
 				IsPointAboveFloor(newCameraPos, checkFloorDistance, minDistanceAboveFloor))
 			{
 				transform.position = newCameraPos;
-				transform.LookAt(targetPos);
-				framesSinceMovement = 0;
-				hasMoved = true;
+				transform.LookAt(lookOffset);
 
 				// Hide too far objects
 				for (int i = 0; i < targetObjects.Length; i++)
@@ -126,6 +132,9 @@ public class AutoCamera : MonoBehaviour
 						}
 					}
 				}
+
+				framesSinceMovement = 0;
+				hasMoved = true;
 			}
 		}
 	}
