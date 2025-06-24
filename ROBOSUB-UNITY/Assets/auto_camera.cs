@@ -17,11 +17,12 @@ public class AutoCamera : MonoBehaviour
 	public Collider poolCollider;
 	public int movementInterval = 10;
 	public int targetedCaptures = 90;
-	public float minBuoyAutoDistance = 0.7f;
-	public float maxBuoyAutoDistance = 4.0f;
-	public float minGateAutoDistance = 4.0f;
-	public float maxGateAutoDistance = 7.0f;
+	public float minSmallDistance = 0.7f;	// For buoys, rocks, etc.
+	public float maxSmallDistance = 4.0f;
+	public float minLargeDistance = 4.0f;	// For gates, etc.
+	public float maxLargeDistance = 7.0f;
 	public int randomSeed = 42;
+
 	private float minDistanceAboveFloor = 0.25f;
 	private GameObject[] targetObjects;
 	private PerceptionCamera PC;
@@ -38,7 +39,6 @@ public class AutoCamera : MonoBehaviour
 		targetObjects = targets.ToArray();
 
 		maxCaptures = targetObjects.Length * targetedCaptures;
-
 		PC = GetComponent<PerceptionCamera>();
 
 		Random.InitState(randomSeed);
@@ -62,6 +62,7 @@ public class AutoCamera : MonoBehaviour
 			return;
 		}
 
+		// Capture halfway through the interval of movement
 		if (Time.frameCount % movementInterval != 0)
 		{
 			framesSinceMovement++;
@@ -76,61 +77,42 @@ public class AutoCamera : MonoBehaviour
 		bool hasMoved = false;
 
 		while (!hasMoved){
-			int targetIndex = captureCount % targetObjects.Length;
+			int targetIndex = captureCount % targetObjects.Length;	// capture all targets in a repeating order
 			GameObject target = targetObjects[targetIndex];
 			Vector3 targetPos = target.transform.position;
 
-			Vector3 randomOffset = Random.onUnitSphere;
-			if (target.CompareTag("Buoy"))
-			{
-				float cameraDistance = Random.Range(minBuoyAutoDistance, maxBuoyAutoDistance);
-				randomOffset *= cameraDistance;
-			}
-			else
-			{
-				float cameraDistance = Random.Range(minGateAutoDistance, maxGateAutoDistance);
-				randomOffset *= cameraDistance;
-			}
-
+			float cameraDistance = target.CompareTag("Gate")
+				? Random.Range(minLargeDistance, maxLargeDistance)
+				: Random.Range(minSmallDistance, maxSmallDistance);
+			Vector3 randomOffset = Random.onUnitSphere * cameraDistance;
 			Vector3 newCameraPos = targetPos + randomOffset;
-			//Vector3 lookOffset = targetPos + Random.insideUnitSphere * 1f;
-
-			Vector3 toTarget = (targetPos - newCameraPos).normalized;
-			float maxAngle = 20f;
-			Quaternion randomRotation = Quaternion.AngleAxis(Random.Range(-maxAngle, maxAngle), Random.onUnitSphere);
-			Vector3 lookDirection = randomRotation * toTarget;
-			Vector3 lookOffset = newCameraPos + lookDirection * (targetPos - newCameraPos).magnitude;
-
-
 
 			if (boundsCollider.bounds.Contains(newCameraPos) &&
-				IsPointAboveFloor(newCameraPos, checkFloorDistance, minDistanceAboveFloor))
+				IsPointAboveFloor(newCameraPos))
 			{
 				transform.position = newCameraPos;
+				
+				// Randomly uncenter the target
+				transform.LookAt(targetPos);
+				float distanceToTarget = (float)Vector3.Distance(newCameraPos, targetPos);
+				Vector3 randomViewportPoint = new Vector3(Random.Range(0.35f, 0.65f), Random.Range(0.3f, 0.70f), distanceToTarget);
+				Vector3 lookOffset = Camera.main.ViewportToWorldPoint(randomViewportPoint);
 				transform.LookAt(lookOffset);
 
 				// Hide too far objects
 				for (int i = 0; i < targetObjects.Length; i++)
 				{
 					GameObject obj = targetObjects[i];
-					if (obj.CompareTag("Buoy"))
-					{
-						float distanceToCamera = Vector3.Distance(transform.position, obj.transform.position);
-						obj.SetActive(distanceToCamera <= (maxBuoyAutoDistance + 0.50));
-					}
-					else if (obj.CompareTag("Gate"))
-					{
-						float distanceToCamera = Vector3.Distance(transform.position, obj.transform.position);
-						obj.SetActive(distanceToCamera <= (maxGateAutoDistance + 0.5));
-					}
+					float distanceToCamera = Vector3.Distance(transform.position, obj.transform.position);
+					bool tooClose = distanceToCamera < minSmallDistance;
+					
+					float maxDistance = obj.CompareTag("Gate") ? (maxLargeDistance + 0.5f) : (maxSmallDistance + 0.5f);
+					bool withinDistance = distanceToCamera <= maxDistance;
+
 					Vector3 viewportPoint = Camera.main.WorldToViewportPoint(obj.transform.position);
-					if (viewportPoint != null)
-					{
-						if (viewportPoint.x < 0 || viewportPoint.x > 1 || viewportPoint.y < 0 || viewportPoint.y > 1)
-						{
-							obj.SetActive(false);
-						}
-					}
+					bool inView = viewportPoint.x >= 0 && viewportPoint.x <= 1 && viewportPoint.y >= 0 && viewportPoint.y <= 1;
+
+					obj.SetActive(withinDistance && inView && !tooClose);
 				}
 
 				framesSinceMovement = 0;
@@ -145,16 +127,15 @@ public class AutoCamera : MonoBehaviour
 		/// Requires that boundsCollider bottom is just below the pool floor's lowest point.
 		/// </summary>
 		/// <param name="point">The point in world space to check.</param>
-		/// <param name="checkDistance">The maximum distance to check below the point for the floor.</param>
 		/// <returns>true if the point is above the floor within the specified distance;  otherwise, false. </returns>
-	bool IsPointAboveFloor(Vector3 point, float checkDistance, float minDistance)
+	bool IsPointAboveFloor(Vector3 point)
 	{
 		RaycastHit hit;
 
-		if (Physics.Raycast(point, Vector3.down, out hit, checkDistance) && hit.collider == poolCollider)
+		if (Physics.Raycast(point, Vector3.down, out hit, checkFloorDistance) && hit.collider == poolCollider)
 		{
 			float distanceToFloor = hit.distance;
-			return distanceToFloor >= minDistance;
+			return distanceToFloor >= minDistanceAboveFloor;
 		}
 		
 		return false;
