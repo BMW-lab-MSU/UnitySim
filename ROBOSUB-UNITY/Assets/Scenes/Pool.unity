@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 262.33694, g: 325.04984, b: 430.2193, a: 1}
+  m_IndirectSpecularColor: {r: 261.89923, g: 324.44937, b: 429.42596, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2717,11 +2717,12 @@ MonoBehaviour:
   boundsCollider: {fileID: 98886039}
   poolCollider: {fileID: 848311169}
   movementInterval: 10
-  targetedCaptures: 50
+  targetedCaptures: 90
   minBuoyAutoDistance: 0.7
-  maxBuoyAutoDistance: 5
+  maxBuoyAutoDistance: 4
   minGateAutoDistance: 4
   maxGateAutoDistance: 7
+  randomSeed: 42
 --- !u!1 &975689515
 GameObject:
   m_ObjectHideFlags: 0

@@ -117,6 +117,14 @@ public class AutoCamera : MonoBehaviour
 						float distanceToCamera = Vector3.Distance(transform.position, obj.transform.position);
 						obj.SetActive(distanceToCamera <= (maxGateAutoDistance + 0.5));
 					}
+					Vector3 viewportPoint = Camera.main.WorldToViewportPoint(obj.transform.position);
+					if (viewportPoint != null)
+					{
+						if (viewportPoint.x < 0 || viewportPoint.x > 1 || viewportPoint.y < 0 || viewportPoint.y > 1)
+						{
+							obj.SetActive(false);
+						}
+					}
 				}
 			}
 		}
