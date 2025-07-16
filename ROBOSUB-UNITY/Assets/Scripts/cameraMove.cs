@@ -23,7 +23,7 @@ public class cameraMove : MonoBehaviour
 
     void Update()
     {
-        if (pauseMenu.GameIsPaused == false)
+		if (pauseMenu.GameIsPaused == false)
         {
             // Toggle the auto camera to collect data. Disables other controls.
             if (Input.GetKeyDown(KeyCode.G))
@@ -34,11 +34,11 @@ public class cameraMove : MonoBehaviour
             }
 
             if (!autoCamera.enabled)
-            {
-                // Get the horizontal and vertical axis.
-                // By default they are mapped to the arrow keys.
-                // The value is in the range -1 to 1
-                float translationV = Input.GetAxis("Vertical") * MVspeed;
+			{
+				// Get the horizontal and vertical axis.
+				// By default they are mapped to the arrow keys.
+				// The value is in the range -1 to 1
+				float translationV = Input.GetAxis("Vertical") * MVspeed;
                 float translationH = Input.GetAxis("Horizontal") * MVspeed;
 
                 //Save Labeled Images
@@ -51,7 +51,7 @@ public class cameraMove : MonoBehaviour
                 if (Input.GetKey(KeyCode.Space))
                 {
                     verticalMV = 1.0f;
-                }
+				}
                 else if (Input.GetKey(KeyCode.Q))
                 {
                     verticalMV = -1.0f;
@@ -77,9 +77,7 @@ public class cameraMove : MonoBehaviour
 
                 // Move translation along the object's z-axis
                 transform.Translate(translationH, verticalMV, translationV);
-
-                // Rotate around our y-axis
-            }
+			}
         }
         else
         {

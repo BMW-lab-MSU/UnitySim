@@ -68,8 +68,36 @@ PrefabInstance:
       propertyPath: m_Name
       value: yellow
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dcfad7dacfe3e41478cf0fc159c171cc, type: 3}
+      propertyPath: m_TagString
+      value: Buoy
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: dcfad7dacfe3e41478cf0fc159c171cc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3663113432963901981}
   m_SourcePrefab: {fileID: 100100000, guid: dcfad7dacfe3e41478cf0fc159c171cc, type: 3}
+--- !u!1 &703113875491549149 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: dcfad7dacfe3e41478cf0fc159c171cc, type: 3}
+  m_PrefabInstance: {fileID: 360463384528769676}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3663113432963901981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 703113875491549149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b33f0bc2b78db642a758f07826d0dd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  labels:
+  - Yellow Buoy
+  useAutoLabeling: 0
+  autoLabelingSchemeType: 

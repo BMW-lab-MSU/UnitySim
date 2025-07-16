@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Scenes/Pool.unity
+- path: Assets/Scenes/Glen_Lake.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
