@@ -98,6 +98,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   labels:
-  - Green Buoy
+  - green-buoy
   useAutoLabeling: 0
   autoLabelingSchemeType: 
