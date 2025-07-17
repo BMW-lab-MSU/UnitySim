@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 261.89923, g: 324.44937, b: 429.42596, a: 1}
+  m_IndirectSpecularColor: {r: 262.33694, g: 325.04984, b: 430.2193, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -820,6 +820,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 104789662}
   m_CullTransparentMesh: 1
+--- !u!1 &126204518
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 126204520}
+  - component: {fileID: 126204519}
+  m_Layer: 0
+  m_Name: Global Volume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &126204519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126204518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 0b055d155072dd741903c42471ff801a, type: 2}
+--- !u!4 &126204520
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126204518}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.14, y: 3.05, z: -5.798958}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &205018393
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1752,7 +1801,7 @@ Light:
   m_RenderingLayerMask: 1
   m_Lightmapping: 1
   m_LightShadowCasterMode: 2
-  m_AreaSize: {x: 1, y: 1}
+  m_AreaSize: {x: 0.5, y: 0.5}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 1
@@ -2443,7 +2492,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.23
   far clip plane: 1000
   field of view: 60
   orthographic: 0
@@ -2712,16 +2761,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0ead9325cd941747ba17ead5b7a0d05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minDistanceAboveFloor: 0.25
   checkFloorDistance: 4
   boundsCollider: {fileID: 98886039}
   poolCollider: {fileID: 848311169}
   movementInterval: 10
-  targetedCaptures: 90
-  minBuoyAutoDistance: 0.7
-  maxBuoyAutoDistance: 4
-  minGateAutoDistance: 4
-  maxGateAutoDistance: 7
+  targetedCaptures: 180
+  minSmallDistance: 0.7
+  maxSmallDistance: 4
+  minLargeDistance: 4
+  maxLargeDistance: 7
   randomSeed: 42
 --- !u!1 &975689515
 GameObject:
@@ -3308,7 +3356,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &1217901733
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4517,10 +4565,10 @@ MonoBehaviour:
   endSmoothness: 0.85
   smoothnessFadeStart: 100
   smoothnessFadeDistance: 500
-  refractionColor: {r: 0.2, g: 0.55, b: 0.55, a: 1}
+  refractionColor: {r: 0.11764705, g: 0.53333336, b: 0.4856562, a: 1}
   maxRefractionDistance: 0.35
   absorptionDistance: 5
-  scatteringColor: {r: 0, g: 0.5, b: 0.6, a: 1}
+  scatteringColor: {r: 0.027812384, g: 0.3215562, b: 0.5896226, a: 1}
   ambientScattering: 0.6
   heightScattering: 0
   displacementScattering: 0
@@ -4531,7 +4579,7 @@ MonoBehaviour:
   causticsPlaneBlendDistance: 2
   causticsResolution: 256
   causticsBand: 0
-  virtualPlaneDistance: 4
+  virtualPlaneDistance: 2
   foam: 0
   simulationFoamAmount: 0.3
   simulationFoamDrag: 0
@@ -4593,7 +4641,7 @@ MonoBehaviour:
   volumeDepth: 50
   volumePrority: 0
   transitionSize: 0.2
-  absorbtionDistanceMultiplier: 1.5
+  absorbtionDistanceMultiplier: 2
 --- !u!4 &1770091123
 Transform:
   m_ObjectHideFlags: 0
@@ -5316,3 +5364,4 @@ SceneRoots:
   - {fileID: 1770091123}
   - {fileID: 1062911162}
   - {fileID: 98886038}
+  - {fileID: 126204520}
