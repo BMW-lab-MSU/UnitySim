@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Buoy
   - Gate
+  - Small
+  - Large
   layers:
   - Default
   - TransparentFX

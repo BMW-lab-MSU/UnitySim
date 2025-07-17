@@ -16,16 +16,16 @@ MonoBehaviour:
   - label: Stick
     id: 1
     hierarchyRelation: 0
-  - label: Green Buoy
+  - label: green-buoy
     id: 2
     hierarchyRelation: 0
-  - label: Red Buoy
+  - label: red-buoy
     id: 3
     hierarchyRelation: 0
-  - label: Yellow Buoy
+  - label: yellow-buoy
     id: 4
     hierarchyRelation: 0
-  - label: Gate
+  - label: gate
     id: 5
     hierarchyRelation: 0
   - label: Koi
@@ -33,6 +33,9 @@ MonoBehaviour:
     hierarchyRelation: 0
   - label: Carp
     id: 7
+    hierarchyRelation: 0
+  - label: rock
+    id: 8
     hierarchyRelation: 0
   autoAssignIds: 1
   startingLabelId: 1
