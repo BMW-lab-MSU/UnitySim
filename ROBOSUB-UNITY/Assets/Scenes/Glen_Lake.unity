@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 2427.6604, g: 2391.7346, b: 3676.391, a: 1}
+  m_IndirectSpecularColor: {r: 2427.715, g: 2391.7268, b: 3676.438, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -779,15 +779,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8631436804614406180, guid: 701bad13ba9db7e4583267f6a92e1ec4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.453
+      value: 3.296
       objectReference: {fileID: 0}
     - target: {fileID: 8631436804614406180, guid: 701bad13ba9db7e4583267f6a92e1ec4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.9273
+      value: -1.945
       objectReference: {fileID: 0}
     - target: {fileID: 8631436804614406180, guid: 701bad13ba9db7e4583267f6a92e1ec4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.764
+      value: -3.412
       objectReference: {fileID: 0}
     - target: {fileID: 8631436804614406180, guid: 701bad13ba9db7e4583267f6a92e1ec4, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4903,7 +4903,7 @@ MonoBehaviour:
   boundsCollider: {fileID: 1537341500}
   poolCollider: {fileID: 1205318135}
   movementInterval: 10
-  targetedCaptures: 100
+  targetedCaptures: 200
   minSmallDistance: 0.3
   maxSmallDistance: 2
   minLargeDistance: 4
