@@ -42,7 +42,6 @@ def convert_percept_to_yolo(solo_number, train_split=0.8):
         key=alphanum_key,
     )
     json_files = json_files[1:]
-    print("json_files:", json_files)
     train_cutoff = int(len(json_files) * train_split)
 
     for idx, filename in enumerate(json_files):
