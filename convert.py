@@ -134,7 +134,8 @@ def convert_percept_to_yolo(solo_number, train_split=0.8):
     with open(yaml_path, "w") as yaml_file:
         yaml_file.write(
             f"train: ../train/images\n"
-            f"val: ../val/images\n\n"
+            f"val: ../valid/images\n\n"
+            f"test: ../test/images\n\n"
             f"nc: {nc}\n"
             f"names: {json.dumps(class_names)}\n"
         )
