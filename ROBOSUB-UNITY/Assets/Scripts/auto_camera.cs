@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Perception.GroundTruth;
 using UnityEngine.Perception.GroundTruth.DataModel;
@@ -22,6 +23,7 @@ public class AutoCamera : MonoBehaviour
 	public float minLargeDistance = 4.0f;	// For gates, etc.
 	public float maxLargeDistance = 7.0f;
 	public int randomSeed = 42;
+	public string randomFolder = "C:\\Users\\sterl\\reu\\UnitySim";
 
 	private float minDistanceAboveFloor = 0.25f;
 	private GameObject[] targetObjects;
@@ -29,11 +31,26 @@ public class AutoCamera : MonoBehaviour
 	private int framesSinceMovement = 0;
 	private int captureCount = 0;
 	private int maxCaptures;
+	private System.Random deterministicRandom;
+	private List<float> precomputedRandoms;
+	private int randomIndex = 0;
 
 
 	void Start()
 	{
-		Random.InitState(randomSeed);
+		randomFolder = Path.Combine(randomFolder, "precomputed_randoms.json");
+		if (File.Exists(randomFolder)) 
+		{ 
+			Debug.Log("Loading precomputed randoms from: " + randomFolder);
+			precomputedRandoms = LoadFromFile(randomFolder);
+		}
+		else
+		{
+			Debug.Log("Generating precomputed randoms and saving to: " + randomFolder);
+			var rng = new System.Random(randomSeed);
+			precomputedRandoms = GenerateRandoms(rng, 10000);
+			SaveToFile(precomputedRandoms, randomFolder);
+		}
 
 		List<GameObject> targets = new List<GameObject>();
 		targets.AddRange(GameObject.FindGameObjectsWithTag("Small"));
@@ -82,11 +99,11 @@ public class AutoCamera : MonoBehaviour
 			Vector3 targetPos = target.transform.position;
 
 			float cameraDistance = target.CompareTag("Large")
-				? Random.Range(minLargeDistance, maxLargeDistance)
-				: Random.Range(minSmallDistance, maxSmallDistance);
+				? RandomRange(minLargeDistance, maxLargeDistance)
+				: RandomRange(minSmallDistance, maxSmallDistance);
 
 
-			Vector3 randomOffset = Random.onUnitSphere * cameraDistance;
+			Vector3 randomOffset = RandomOnUnitSphere() * cameraDistance;
 			Vector3 newCameraPos = targetPos + randomOffset;
 
 			if (boundsCollider.bounds.Contains(newCameraPos) &&
@@ -97,7 +114,7 @@ public class AutoCamera : MonoBehaviour
 				// Randomly uncenter the target
 				transform.LookAt(targetPos);
 				float distanceToTarget = (float)Vector3.Distance(newCameraPos, targetPos);
-				Vector3 randomViewportPoint = new Vector3(Random.Range(0.35f, 0.65f), Random.Range(0.3f, 0.70f), distanceToTarget);
+				Vector3 randomViewportPoint = new Vector3(RandomRange(0.35f, 0.65f), RandomRange(0.3f, 0.70f), distanceToTarget);
 				Vector3 lookOffset = Camera.main.ViewportToWorldPoint(randomViewportPoint);
 				transform.LookAt(lookOffset);
 
@@ -125,12 +142,12 @@ public class AutoCamera : MonoBehaviour
 	}
 
 
-		/// <summary>
-		/// Determines whether the specified point is above the floor mesh within a given distance.
-		/// Requires that boundsCollider bottom is just below the pool floor's lowest point.
-		/// </summary>
-		/// <param name="point">The point in world space to check.</param>
-		/// <returns>true if the point is above the floor within the specified distance;  otherwise, false. </returns>
+	/// <summary>
+	/// Determines whether the specified point is above the floor mesh within a given distance.
+	/// Requires that boundsCollider bottom is just below the pool floor's lowest point.
+	/// </summary>
+	/// <param name="point">The point in world space to check.</param>
+	/// <returns>true if the point is above the floor within the specified distance;  otherwise, false. </returns>
 	bool IsPointAboveFloor(Vector3 point)
 	{
 		RaycastHit hit;
@@ -143,4 +160,61 @@ public class AutoCamera : MonoBehaviour
 		
 		return false;
 	}
+
+	// Functions to help with randomness
+	[System.Serializable]
+	public class FloatListWrapper
+	{
+		public List<float> values;
+	}
+
+
+	void SaveToFile(List<float> randoms, string path)
+	{
+		FloatListWrapper wrapper = new FloatListWrapper { values = randoms };
+		string json = JsonUtility.ToJson(wrapper);
+		File.WriteAllText(path, json);
+	}
+
+
+	List<float> LoadFromFile(string path)
+	{
+		string json = File.ReadAllText(path);
+		FloatListWrapper wrapper = JsonUtility.FromJson<FloatListWrapper>(json);
+		return wrapper.values;
+	}
+
+
+	List<float> GenerateRandoms(System.Random rng, int count)
+	{
+		List<float> randomNumbers = new List<float>();
+		for (int i = 0; i < count; i++)
+		{
+			randomNumbers.Add((float)rng.NextDouble());
+		}
+		return randomNumbers;
+	}
+
+
+	float NextRandom() => precomputedRandoms[randomIndex++];
+
+
+	float RandomRange(float min, float max)
+	{
+		return (float)(NextRandom() * (max - min) + min);
+	}
+
+
+	Vector3 RandomOnUnitSphere()
+	{
+		float theta = (float)(NextRandom() * 2 * Mathf.PI);
+		float phi = (float)(System.Math.Acos(2 * NextRandom() - 1));
+
+		float x = Mathf.Sin(phi) * Mathf.Cos(theta);
+		float y = Mathf.Sin(phi) * Mathf.Sin(theta);
+		float z = Mathf.Cos(phi);
+
+		return new Vector3(x, y, z);
+	}
+
 }

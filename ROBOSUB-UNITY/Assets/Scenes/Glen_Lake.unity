@@ -4942,6 +4942,7 @@ MonoBehaviour:
   minLargeDistance: 4
   maxLargeDistance: 7
   randomSeed: 42
+  randomPath: C:\Users\sterl\reu\UnitySim
 --- !u!1 &2042490860
 GameObject:
   m_ObjectHideFlags: 3
