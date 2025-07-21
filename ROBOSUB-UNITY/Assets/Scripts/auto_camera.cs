@@ -18,12 +18,14 @@ public class AutoCamera : MonoBehaviour
 	public Collider poolCollider;
 	public int movementInterval = 10;
 	public int targetedCaptures = 90;
-	public float minSmallDistance = 0.7f;	// For buoys, rocks, etc.
+	public float minSmallDistance = 0.7f;   // For buoys, rocks, etc.
 	public float maxSmallDistance = 4.0f;
-	public float minLargeDistance = 4.0f;	// For gates, etc.
+	public float minLargeDistance = 4.0f;   // For gates, etc.
 	public float maxLargeDistance = 7.0f;
 	public int randomSeed = 42;
-	public string randomFolder = "C:\\Users\\sterl\\reu\\UnitySim";
+	public string posesFile = "C:\\Users\\sterl\\reu\\UnitySim\\poses.json";
+	public bool useReplayMode = false;
+
 
 	private float minDistanceAboveFloor = 0.25f;
 	private GameObject[] targetObjects;
@@ -31,25 +33,28 @@ public class AutoCamera : MonoBehaviour
 	private int framesSinceMovement = 0;
 	private int captureCount = 0;
 	private int maxCaptures;
-	private System.Random deterministicRandom;
-	private List<float> precomputedRandoms;
-	private int randomIndex = 0;
+
+	private List<CameraPose> savedPoses = new List<CameraPose>();
+	private int poseIndex = 0;
+	private System.Random rng;
 
 
 	void Start()
 	{
-		randomFolder = Path.Combine(randomFolder, "precomputed_randoms.json");
-		if (File.Exists(randomFolder)) 
-		{ 
-			Debug.Log("Loading precomputed randoms from: " + randomFolder);
-			precomputedRandoms = LoadFromFile(randomFolder);
-		}
-		else
+		rng = new System.Random(randomSeed);
+		if (useReplayMode)
 		{
-			Debug.Log("Generating precomputed randoms and saving to: " + randomFolder);
-			var rng = new System.Random(randomSeed);
-			precomputedRandoms = GenerateRandoms(rng, 10000);
-			SaveToFile(precomputedRandoms, randomFolder);
+			if (File.Exists(posesFile))
+			{
+				string json = File.ReadAllText(posesFile);
+				savedPoses = JsonUtility.FromJson<CameraPoseList>(json).poses;
+				Debug.Log($"Loaded {savedPoses.Count} camera poses from {posesFile}");
+			}
+			else
+			{
+				Debug.LogError("Replay mode enabled but camera poses file not found!");
+				enabled = false;
+			}
 		}
 
 		List<GameObject> targets = new List<GameObject>();
@@ -73,6 +78,12 @@ public class AutoCamera : MonoBehaviour
 		if (captureCount >= maxCaptures)
 		{
 			Debug.Log("Max captures reached. Stopping auto camera.");
+			if (!useReplayMode && savedPoses.Count > 0)
+			{
+				string json = JsonUtility.ToJson(new CameraPoseList { poses = savedPoses }, true);
+				File.WriteAllText(posesFile, json);
+				Debug.Log($"Saved {savedPoses.Count} camera poses to {posesFile}");
+			}
 			PC.enabled = false;
 			PC.captureTriggerMode = CaptureTriggerMode.Scheduled;
 			this.enabled = false;
@@ -83,18 +94,61 @@ public class AutoCamera : MonoBehaviour
 		if (Time.frameCount % movementInterval != 0)
 		{
 			framesSinceMovement++;
-			if(framesSinceMovement == movementInterval/2)
+			if (framesSinceMovement == movementInterval / 2)
 			{
+
+				if (!useReplayMode)
+				{
+					Vector3 lookAt = GetCurrentLookAt();
+					List<string> activeNames = new List<string>();
+					for (int i = 0; i < targetObjects.Length; i++)
+					{
+						if (targetObjects[i].activeSelf)
+							activeNames.Add(targetObjects[i].name);
+					}
+
+					savedPoses.Add(new CameraPose { position = transform.position, lookAt = lookAt, activeNames = activeNames });
+				}
 				PC.RequestCapture();
 				captureCount++;
+				poseIndex++;
 			}
-			return;
+
+			if (framesSinceMovement == movementInterval) 
+			{
+				if (poseIndex < savedPoses.Count)
+				{
+					CameraPose pose = savedPoses[poseIndex];
+					transform.position = pose.position;
+					transform.LookAt(pose.lookAt);
+					ApplyActiveObjects(pose.activeNames);
+					framesSinceMovement = 0;
+					
+				}
+				else
+				{
+					Debug.LogWarning("No more saved poses to replay.");
+				}
+		}
+			
+			
+				return;
 		}
 
+		if (!useReplayMode)
+		{
+			Move();
+		}
+	}
+
+
+	void Move()
+	{
 		bool hasMoved = false;
 
-		while (!hasMoved){
-			int targetIndex = captureCount % targetObjects.Length;	// capture all targets in a repeating order
+		while (!hasMoved)
+		{
+			int targetIndex = captureCount % targetObjects.Length;  // capture all targets in a repeating order
 			GameObject target = targetObjects[targetIndex];
 			Vector3 targetPos = target.transform.position;
 
@@ -118,26 +172,54 @@ public class AutoCamera : MonoBehaviour
 				Vector3 lookOffset = Camera.main.ViewportToWorldPoint(randomViewportPoint);
 				transform.LookAt(lookOffset);
 
-				// Hide too far objects
-				for (int i = 0; i < targetObjects.Length; i++)
+				HideFarObjects();
+
+				if (target.activeSelf)
 				{
-					GameObject obj = targetObjects[i];
-					float distanceToCamera = Vector3.Distance(transform.position, obj.transform.position);
-					bool tooClose = distanceToCamera < minSmallDistance;
-
-					float maxDistance = obj.CompareTag("Large") ? (maxLargeDistance + 0.5f) : (maxSmallDistance + 0.5f);
-					bool withinDistance = distanceToCamera <= maxDistance;
-
-					Vector3 viewportPoint = Camera.main.WorldToViewportPoint(obj.transform.position);
-					bool inView = viewportPoint.x >= 0 && viewportPoint.x <= 1 && viewportPoint.y >= 0 && viewportPoint.y <= 1;
-					obj.SetActive(withinDistance && inView && !tooClose);
-				}
-
-				if (target.activeSelf) {
 					framesSinceMovement = 0;
 					hasMoved = true;
 				}
 			}
+		}
+	}
+
+	
+	void HideFarObjects()
+	{
+		for (int i = 0; i < targetObjects.Length; i++)
+		{
+			GameObject obj = targetObjects[i];
+			float distanceToCamera = Vector3.Distance(transform.position, obj.transform.position);
+			bool tooClose = distanceToCamera < minSmallDistance;
+
+			float maxDistance = obj.CompareTag("Large") ? (maxLargeDistance + 0.5f) : (maxSmallDistance + 0.5f);
+			bool withinDistance = distanceToCamera <= maxDistance;
+
+			Vector3 viewportPoint = Camera.main.WorldToViewportPoint(obj.transform.position);
+			bool inView = viewportPoint.x >= 0 && viewportPoint.x <= 1 && viewportPoint.y >= 0 && viewportPoint.y <= 1;
+			obj.SetActive(withinDistance && inView && !tooClose);
+		}
+	}
+
+	void ApplyActiveObjects(List<string> activeNames)
+	{
+		for (int i = 0; i < targetObjects.Length; i++)
+		{
+			targetObjects[i].SetActive(activeNames.Contains(targetObjects[i].name));
+		}
+	}
+
+
+	Vector3 GetCurrentLookAt()
+	{
+		Ray ray = new Ray(transform.position, transform.forward);
+		if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+		{
+			return hit.point;
+		}
+		else
+		{
+			return transform.position + transform.forward * 10f;
 		}
 	}
 
@@ -157,58 +239,22 @@ public class AutoCamera : MonoBehaviour
 			float distanceToFloor = hit.distance;
 			return distanceToFloor >= minDistanceAboveFloor;
 		}
-		
+
 		return false;
 	}
 
-	// Functions to help with randomness
-	[System.Serializable]
-	public class FloatListWrapper
-	{
-		public List<float> values;
-	}
 
-
-	void SaveToFile(List<float> randoms, string path)
-	{
-		FloatListWrapper wrapper = new FloatListWrapper { values = randoms };
-		string json = JsonUtility.ToJson(wrapper);
-		File.WriteAllText(path, json);
-	}
-
-
-	List<float> LoadFromFile(string path)
-	{
-		string json = File.ReadAllText(path);
-		FloatListWrapper wrapper = JsonUtility.FromJson<FloatListWrapper>(json);
-		return wrapper.values;
-	}
-
-
-	List<float> GenerateRandoms(System.Random rng, int count)
-	{
-		List<float> randomNumbers = new List<float>();
-		for (int i = 0; i < count; i++)
-		{
-			randomNumbers.Add((float)rng.NextDouble());
-		}
-		return randomNumbers;
-	}
-
-
-	float NextRandom() => precomputedRandoms[randomIndex++];
-
-
+	// Functions to help with positions and repeatable randomizations
 	float RandomRange(float min, float max)
 	{
-		return (float)(NextRandom() * (max - min) + min);
+		return (float)(rng.NextDouble() * (max - min) + min);
 	}
 
 
 	Vector3 RandomOnUnitSphere()
 	{
-		float theta = (float)(NextRandom() * 2 * Mathf.PI);
-		float phi = (float)(System.Math.Acos(2 * NextRandom() - 1));
+		float theta = (float)(rng.NextDouble() * 2 * Mathf.PI);
+		float phi = (float)(System.Math.Acos(2 * rng.NextDouble() - 1));
 
 		float x = Mathf.Sin(phi) * Mathf.Cos(theta);
 		float y = Mathf.Sin(phi) * Mathf.Sin(theta);
@@ -217,4 +263,19 @@ public class AutoCamera : MonoBehaviour
 		return new Vector3(x, y, z);
 	}
 
+}
+
+
+[System.Serializable]
+public class CameraPose
+{
+	public Vector3 position;
+	public Vector3 lookAt;
+	public List<string> activeNames;
+}
+
+[System.Serializable]
+public class CameraPoseList
+{
+	public List<CameraPose> poses;
 }

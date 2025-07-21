@@ -24,7 +24,7 @@ RenderSettings:
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 4
+  m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 2428.9807, g: 2393.9592, b: 3683.9224, a: 1}
+  m_IndirectSpecularColor: {r: 2427.723, g: 2391.758, b: 3676.399, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4935,14 +4935,15 @@ MonoBehaviour:
   checkFloorDistance: 3
   boundsCollider: {fileID: 1537341500}
   poolCollider: {fileID: 1205318135}
-  movementInterval: 5
+  movementInterval: 10
   targetedCaptures: 200
   minSmallDistance: 0.3
   maxSmallDistance: 2
   minLargeDistance: 4
   maxLargeDistance: 7
   randomSeed: 42
-  randomPath: C:\Users\sterl\reu\UnitySim
+  posesFile: C:\Users\sterl\reu\UnitySim\lake_poses.json
+  useReplayMode: 1
 --- !u!1 &2042490860
 GameObject:
   m_ObjectHideFlags: 3
