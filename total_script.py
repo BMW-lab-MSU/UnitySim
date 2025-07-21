@@ -1,6 +1,6 @@
 """
 This script counts the number of objects detected in Unity simulation frames
-collected with the perception package.
+collected with the perception package. Provide as argument the number of the solo (i.e. solo_3 = 3
 """
 
 import os

@@ -33,6 +33,8 @@ public class AutoCamera : MonoBehaviour
 
 	void Start()
 	{
+		Random.InitState(randomSeed);
+
 		List<GameObject> targets = new List<GameObject>();
 		targets.AddRange(GameObject.FindGameObjectsWithTag("Small"));
 		targets.AddRange(GameObject.FindGameObjectsWithTag("Large"));
@@ -40,8 +42,6 @@ public class AutoCamera : MonoBehaviour
 
 		maxCaptures = targetObjects.Length * targetedCaptures;
 		PC = GetComponent<PerceptionCamera>();
-
-		Random.InitState(randomSeed);
 	}
 
 

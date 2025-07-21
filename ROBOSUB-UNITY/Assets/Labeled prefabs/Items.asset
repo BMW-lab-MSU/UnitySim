@@ -37,5 +37,5 @@ MonoBehaviour:
   - label: rock
     id: 8
     hierarchyRelation: 0
-  autoAssignIds: 1
+  autoAssignIds: 0
   startingLabelId: 1
