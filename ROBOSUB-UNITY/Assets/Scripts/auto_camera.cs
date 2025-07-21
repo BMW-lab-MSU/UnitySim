@@ -90,10 +90,10 @@ public class AutoCamera : MonoBehaviour
 			return;
 		}
 
-		// Capture halfway through the interval of movement
 		if (Time.frameCount % movementInterval != 0)
 		{
 			framesSinceMovement++;
+			// Capture halfway through the interval of movement
 			if (framesSinceMovement == movementInterval / 2)
 			{
 
@@ -114,6 +114,7 @@ public class AutoCamera : MonoBehaviour
 				poseIndex++;
 			}
 
+			// move on the 'other half'
 			if (framesSinceMovement == movementInterval) 
 			{
 				if (poseIndex < savedPoses.Count)
@@ -129,10 +130,8 @@ public class AutoCamera : MonoBehaviour
 				{
 					Debug.LogWarning("No more saved poses to replay.");
 				}
-		}
-			
-			
-				return;
+			}
+			return;
 		}
 
 		if (!useReplayMode)
