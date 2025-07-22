@@ -13,8 +13,6 @@ MonoBehaviour:
   m_Name: SemanticSegmentationLabelConfig
   m_EditorClassIdentifier: 
   m_LabelEntries:
-  - label: Stick
-    color: {r: 0, g: 0, b: 1, a: 1}
   - label: green-buoy
     color: {r: 0, g: 1, b: 0, a: 1}
   - label: red-buoy
@@ -23,10 +21,6 @@ MonoBehaviour:
     color: {r: 0.9894031, g: 1, b: 0.042452812, a: 1}
   - label: gate
     color: {r: 1, g: 1, b: 1, a: 1}
-  - label: Koi
-    color: {r: 1, g: 0.015686274, b: 0.7329277, a: 1}
-  - label: Carp
-    color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   - label: rock
     color: {r: 0.44833478, g: 0, b: 0.6886792, a: 1}
   skyColor: {r: 0, g: 0, b: 0, a: 1}

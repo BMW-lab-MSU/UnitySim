@@ -204,7 +204,16 @@ public class AutoCamera : MonoBehaviour
 	{
 		for (int i = 0; i < targetObjects.Length; i++)
 		{
-			targetObjects[i].SetActive(activeNames.Contains(targetObjects[i].name));
+			bool shouldBeActive = false;
+			foreach (var activeName in activeNames)
+			{
+				if (targetObjects[i].name.Contains(activeName))
+				{
+					shouldBeActive = true;
+					break;
+				}
+			}
+			targetObjects[i].SetActive(shouldBeActive);
 		}
 	}
 

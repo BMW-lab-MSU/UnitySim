@@ -64,7 +64,10 @@ if __name__ == "__main__":
 
     solo_number = sys.argv[1]
     base_path = r"C:\Users\sterl\AppData\LocalLow\DefaultCompany\ROBOSUB"
-    full_path = os.path.join(base_path, f"solo_{solo_number}", "sequence.0")
+    if solo_number == "0":
+        full_path = os.path.join(base_path, "solo", "sequence.0")
+    else:
+        full_path = os.path.join(base_path, f"solo_{solo_number}", "sequence.0")
 
     if not os.path.isdir(full_path):
         print(f"Directory does not exist: {full_path}")
