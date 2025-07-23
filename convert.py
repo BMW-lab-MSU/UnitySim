@@ -8,11 +8,16 @@ import sys
 import shutil
 import random
 import re
+import cv2
 
 
-def convert_percept_to_yolo(solo_number, train_split=0.8):
+pool_test_dir = "C:\\Users\\sterl\\reu\\real-pool-data\\test"
+lake_test_dir = "C:\\Users\\sterl\\reu\\real-lake-data\\test"
+base_dir = "C:\\Users\\sterl\\AppData\\LocalLow\\DefaultCompany\\ROBOSUB"
+
+
+def convert_percept_to_yolo(test_path, solo_number, train_split=0.8):
     # Create and define directories
-    base_dir = "C:\\Users\\sterl\\AppData\\LocalLow\\DefaultCompany\\ROBOSUB"
     input_folder = os.path.join(
         base_dir, "solo" if solo_number == "0" else f"solo_{solo_number}"
     )
@@ -24,8 +29,8 @@ def convert_percept_to_yolo(solo_number, train_split=0.8):
 
     train_img_folder = os.path.join(output_folder, "train", "images")
     train_lbl_folder = os.path.join(output_folder, "train", "labels")
-    val_img_folder = os.path.join(output_folder, "val", "images")
-    val_lbl_folder = os.path.join(output_folder, "val", "labels")
+    val_img_folder = os.path.join(output_folder, "valid", "images")
+    val_lbl_folder = os.path.join(output_folder, "valid", "labels")
 
     for folder in [train_img_folder, train_lbl_folder, val_img_folder, val_lbl_folder]:
         os.makedirs(folder, exist_ok=True)
@@ -55,7 +60,8 @@ def convert_percept_to_yolo(solo_number, train_split=0.8):
             if "dimension" in capture:
                 image_width, image_height = capture["dimension"]
 
-        # Extract bounding boxes
+        ### Extract bounding boxes ###
+        # Note: Coordinates are normalized (0-1), so they remain valid after resizing
         bounding_boxes = []
         for capture in data.get("captures", []):
             for annotation in capture.get("annotations", []):
@@ -83,7 +89,7 @@ def convert_percept_to_yolo(solo_number, train_split=0.8):
         img_dest = train_img_folder if is_train else val_img_folder
         lbl_dest = train_lbl_folder if is_train else val_lbl_folder
 
-        # Get image filename
+        ### Get image filename ###
         image_filename = None
         for capture in data.get("captures", []):
             if "filename" in capture:
@@ -94,11 +100,17 @@ def convert_percept_to_yolo(solo_number, train_split=0.8):
             print(f"Skipping {filename}: no image reference found.")
             continue
 
-        # Copy image
+        ### Copy and resize image to 640x640 ###
         src_image_path = os.path.join(images_folder, image_filename)
         dst_image_path = os.path.join(img_dest, os.path.basename(image_filename))
         if os.path.exists(src_image_path):
-            shutil.copy(src_image_path, dst_image_path)
+            img = cv2.imread(src_image_path)
+            if img is not None:
+                resized_img = cv2.resize(img, (640, 640))
+                cv2.imwrite(dst_image_path, resized_img)
+            else:
+                print(f"Warning: Could not read image {image_filename}")
+                continue
         else:
             print(f"Warning: Image {image_filename} not found.")
             continue
@@ -110,9 +122,14 @@ def convert_percept_to_yolo(solo_number, train_split=0.8):
         with open(label_path, "w") as file:
             file.write("\n".join(bounding_boxes))
 
-        # print(f"Processed {filename} -> {'train' if is_train else 'validate'} set.")
+    ### Copy test folder ###
+    print(f"Copying test data from {test_path} to {output_folder}")
+    dst_test_folder = os.path.join(output_folder, "test")
+    if os.path.exists(dst_test_folder):
+        shutil.rmtree(dst_test_folder)
+    shutil.copytree(test_path, dst_test_folder)
 
-    # Write YOLO data.yaml
+    ### Write YOLO data.yaml ###
     def_path = os.path.join(input_folder, "annotation_definitions.json")
     if not os.path.exists(def_path):
         print(f"Error: Annotation definitions file '{def_path}' does not exist.")
@@ -143,9 +160,30 @@ def convert_percept_to_yolo(solo_number, train_split=0.8):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python convert_perception_to_yolo.py <solo_number>")
+    if len(sys.argv) != 3:
+        print(
+            "Usage: python convert_perception_to_yolo.py <dataset_name> <solo_number_or_range>"
+        )
         sys.exit(1)
 
-    solo_number = sys.argv[1]
-    convert_percept_to_yolo(solo_number)
+    dataset_name = sys.argv[1]
+    if dataset_name not in ["pool", "lake"]:
+        print("Error: dataset_name must be 'pool' or 'lake'.")
+        sys.exit(1)
+
+    test_path = pool_test_dir if dataset_name == "pool" else lake_test_dir
+    solo_arg = sys.argv[2]
+
+    # Handle range argument (e.g., 1-5)
+    if "-" in solo_arg:
+        try:
+            start, end = map(int, solo_arg.split("-"))
+            for solo_number in range(start, end + 1):
+                print(f"\n--- Processing solo_{solo_number} ---")
+                convert_percept_to_yolo(test_path, str(solo_number))
+        except ValueError:
+            print("Error: Invalid range format. Use X-Y where X and Y are integers.")
+            sys.exit(1)
+    else:
+        # Single solo number
+        convert_percept_to_yolo(test_path, solo_arg)
