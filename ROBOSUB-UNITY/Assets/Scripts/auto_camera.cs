@@ -10,6 +10,8 @@ using UnityEngine.Perception.GroundTruth.DataModel;
 /// <summary>
 /// This script automatically moves and captures images from a camera to objects tagged as "Small" or "Large".
 /// This requires for PerceptionCamera to both be attached to the same camera and set to Manual capture mode.
+/// If 'Use Replay Mode' is disabled, it will save the random camera poses to a JSON file at 'posesFile' location.
+/// If 'Use Replay Mode' is enabled, it will load the camera poses from the same file and replay them.
 /// </summary>
 public class AutoCamera : MonoBehaviour
 {

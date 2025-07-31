@@ -1,5 +1,7 @@
 """
 This script converts data in Unity Perception Package format into YOLO format.
+It takes a dataset name (pool or lake) and a solo number or range (e.g. '1-3')
+as arguments.
 """
 
 import json
@@ -11,9 +13,9 @@ import re
 import cv2
 
 
-pool_test_dir = "C:\\Users\\sterl\\reu\\real-pool-data\\test"
-lake_test_dir = "C:\\Users\\sterl\\reu\\real-lake-data\\test"
-base_dir = "C:\\Users\\sterl\\AppData\\LocalLow\\DefaultCompany\\ROBOSUB"
+pool_test_dir = "C:\\Users\\<USER>\\reu\\real-pool-data\\test"
+lake_test_dir = "C:\\Users\\<USER>\\reu\\real-lake-data\\test"
+base_dir = "C:\\Users\\<USER>\\AppData\\LocalLow\\DefaultCompany\\ROBOSUB"
 
 
 def convert_percept_to_yolo(test_path, solo_number, train_split=0.8):
@@ -182,7 +184,9 @@ if __name__ == "__main__":
                 print(f"\n--- Processing solo_{solo_number} ---")
                 convert_percept_to_yolo(test_path, str(solo_number))
         except ValueError:
-            print("Error: Invalid range format. Use X-Y where X and Y are integers.")
+            print(
+                "Error: Invalid range format. Use X-Y where X and Y are integers (e.g. 1-3)."
+            )
             sys.exit(1)
     else:
         # Single solo number

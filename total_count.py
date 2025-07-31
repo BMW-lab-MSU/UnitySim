@@ -1,6 +1,6 @@
 """
 This script counts the number of objects detected in Unity simulation frames
-collected with the perception package. Provide as argument the number of the solo (i.e. solo_3 = 3)
+collected with the perception package. Provide, as argument, the number of the solo (i.e. solo_3 = 3)
 """
 
 import os
@@ -63,7 +63,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     solo_number = sys.argv[1]
-    base_path = r"C:\Users\sterl\AppData\LocalLow\DefaultCompany\ROBOSUB"
+    base_path = r"C:\Users\<name>\AppData\LocalLow\DefaultCompany\ROBOSUB"
     if solo_number == "0":
         full_path = os.path.join(base_path, "solo", "sequence.0")
     else:
